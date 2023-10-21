@@ -19,22 +19,7 @@ public class Game {
     private String moves;
     private String dateandendtime; // a mettre en unique value
 
-    public Game(String event, String site, String date, String white, String black, String result, Integer whiteelo, Integer blackelo, String timecontrol, String endtime, String termination, String moves, String dateandendtime) {
-        super();
-        this.event = event;
-        this.site = site;
-        this.date = date;
-        this.white = white;
-        this.black = black;
-        this.result = result;
-        this.whiteelo = whiteelo;
-        this.blackelo = blackelo;
-        this.timecontrol = timecontrol;
-        this.endtime = endtime;
-        this.termination = termination;
-        this.moves = moves;
-        this.dateandendtime = dateandendtime;
-    }
+
 
     public String getEvent() {
         return event;

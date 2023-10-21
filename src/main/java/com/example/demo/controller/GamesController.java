@@ -24,6 +24,4 @@ public class GamesController {
     public void addGame(@RequestBody Game game){
         gamesService.addGame(game);
     }
-
-
 }
