@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "games")
@@ -20,7 +21,8 @@ public class Game {
     private String moves;
     private String playerusername;
 
-    private String dateandendtime; // a mettre en unique value
+    @Indexed(unique = true)
+    private String dateandendtime;
 
     public String getEvent() {
         return event;

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Arrays;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -69,6 +70,8 @@ public class UploadController {
         for(Game game : currentGamesList){
 
             game.setPlayerusername(playerUsername);
+
+            game.setMoves(formatMoves(game.getMoves()));
 
             // We add the Game to the database
             gamesService.addGame(game);
@@ -148,7 +151,10 @@ public class UploadController {
                     currentGame.setMoves(currentGame.getMoves() + line + " ");
                 }
                 // Set the Dateandendtime field in the current game
-                currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndtime());
+                //if(currentGame.getDateandendtime()==null){
+                    currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndtime());
+
+                //}
             }
 
             if (currentGame != null) {
@@ -179,5 +185,28 @@ public class UploadController {
                 .orElse(null);
 
         return playerUsername;
+    }
+
+    public static String formatMoves(String moves){
+
+
+        // Regex to delete what is inside {}
+        String cleanedString = moves.replaceAll("\\{[^}]+\\}", "");
+
+        // Split the string into an array of moves
+        String[] movesArray = cleanedString.split(" ");
+
+        // Filter out moves containing "..."
+        List<String> filteredMovesList = Arrays.stream(movesArray)
+                .filter(move -> !move.contains("..."))
+                .toList();
+
+        // Join the filtered moves into a string
+        String filteredMoves = String.join(" ", filteredMovesList);
+
+        // Replace double spaces with single space
+        return filteredMoves.replaceAll("  ", " ");
+
+
     }
 }
