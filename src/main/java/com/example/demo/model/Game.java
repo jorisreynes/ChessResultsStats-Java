@@ -8,6 +8,7 @@ public class Game {
     private String event;
     private String site;
     private String date;
+    private String round;
     private String white;
     private String black;
     private String result;
@@ -17,9 +18,9 @@ public class Game {
     private String endtime;
     private String termination;
     private String moves;
+    private String playerusername;
+
     private String dateandendtime; // a mettre en unique value
-
-
 
     public String getEvent() {
         return event;
@@ -44,6 +45,9 @@ public class Game {
     public void setDate(String date) {
         this.date = date;
     }
+    public String getRound() {return round;}
+
+    public void setRound(String round) {this.round = round;}
 
     public String getWhite() {
         return white;
@@ -116,6 +120,10 @@ public class Game {
     public void setMoves(String moves) {
         this.moves = moves;
     }
+
+    public String getPlayerusername() {return playerusername;}
+
+    public void setPlayerusername(String playerusername) {this.playerusername = playerusername;}
 
     public String getDateandendtime() {
         return dateandendtime;
