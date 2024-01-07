@@ -13,7 +13,7 @@ git clone https://github.com/jorisreynes/ChessResultAnalyzerJava.git
 cd ChessResultAnalyzerJava
 ````
 
-- Open the solution with your IDE
+- Open the folder with your IDE
 
 - Launch the project
 
