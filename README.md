@@ -17,6 +17,6 @@ Launch the project
 
 You can make API calls on http://localhost:8080/games
 
-(the database is a MongoDB Atlas cluster and can be paused du to inactivity)
+(the database is a MongoDB Atlas cluster and can be paused due to inactivity)
 
 ![ChessResultAnalyzerJava](JavaScreenshot.jpg)
