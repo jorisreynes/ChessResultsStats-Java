@@ -6,16 +6,18 @@ The application is built with Java and Maven, and you can download the Angular i
 
 You need to download your data from Chess.com and upload it with the Angular frontend, or with Postman
 
-How to install it :
+## How to install it :
 
+````
 git clone https://github.com/jorisreynes/ChessResultAnalyzerJava.git 
 cd ChessResultAnalyzerJava
+````
 
-Open the solution with your IDE
+- Open the solution with your IDE
 
-Launch the project
+- Launch the project
 
-You can make API calls on http://localhost:8080/games
+- You can make API calls on http://localhost:8080/games
 
 (the database is a MongoDB Atlas cluster and can be paused due to inactivity)
 
