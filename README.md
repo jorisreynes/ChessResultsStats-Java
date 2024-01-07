@@ -19,4 +19,4 @@ You can make API calls on http://localhost:8080/games
 
 (the database is a MongoDB Atlas cluster and can be paused du to inactivity)
 
-![ChessResultAnalyzerJava](Screenshot.jpg)
+![ChessResultAnalyzerJava](JavaScreenshot.jpg)
