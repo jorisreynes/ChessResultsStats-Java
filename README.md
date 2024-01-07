@@ -9,7 +9,10 @@ You need to download your data from Chess.com and upload it with the Angular fro
 ## How to install it :
 
 ````
-git clone https://github.com/jorisreynes/ChessResultAnalyzerJava.git 
+git clone https://github.com/jorisreynes/ChessResultAnalyzerJava.git
+````
+
+````
 cd ChessResultAnalyzerJava
 ````
 
@@ -17,7 +20,7 @@ cd ChessResultAnalyzerJava
 
 - Launch the project
 
-- You can make API calls on http://localhost:8080/games
+You can make API calls on http://localhost:8080/games
 
 (the database is a MongoDB Atlas cluster and can be paused due to inactivity)
 
