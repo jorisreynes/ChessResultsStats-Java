@@ -73,6 +73,10 @@ public class UploadController {
 
             game.setMoves(formatMoves(game.getMoves()));
 
+            game.setResultForPlayer(findResultForPlayer(game.getTermination(), game.getPlayerusername()));
+
+            game.setEndOfGameBy(HowEndedTheGame(game.getTermination()));
+
             // We add the Game to the database
             gamesService.addGame(game);
         }
@@ -150,11 +154,7 @@ public class UploadController {
                     }
                     currentGame.setMoves(currentGame.getMoves() + line + " ");
                 }
-                // Set the Dateandendtime field in the current game
-                //if(currentGame.getDateandendtime()==null){
-                    currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndtime());
-
-                //}
+                currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndtime());
             }
 
             if (currentGame != null) {
@@ -208,5 +208,33 @@ public class UploadController {
         return filteredMoves.replaceAll("  ", " ");
 
 
+    }
+
+    public static String findResultForPlayer(String termination, String playerUsername){
+        String result = "";
+        if(termination.contains("Partie nulle")){
+            result = "drawn";
+        }
+        else if (termination.contains(playerUsername)){
+            result = "won";
+        }
+        else {
+            result = "lost";
+        }
+        return result;
+    }
+
+    public static String HowEndedTheGame(String termination){
+        String result = "";
+
+        if(termination.contains("temps")){result = "time";}
+        else if (termination.contains("échec et mat")) {result = "checkmate";}
+        else if (termination.contains("abandon")) {result = "abandonment";}
+        else if (termination.contains("accord mutuel")) {result = "agreement";}
+        else if (termination.contains("manque de matériel")) {result = "lack of equipment";}
+        else if (termination.contains("pat")) {result = "pat";}
+        else if (termination.contains("répétition")) {result = "repeat";}
+
+        return result;
     }
 }

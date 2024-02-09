@@ -20,6 +20,8 @@ public class Game {
     private String termination;
     private String moves;
     private String playerusername;
+    private String resultForPlayer;
+    private String endOfGameBy;
 
     @Indexed(unique = true)
     private String dateandendtime;
@@ -119,19 +121,23 @@ public class Game {
         return moves;
     }
 
-    public void setMoves(String moves) {
-        this.moves = moves;
-    }
+    public void setMoves(String moves) {this.moves = moves;}
 
     public String getPlayerusername() {return playerusername;}
 
     public void setPlayerusername(String playerusername) {this.playerusername = playerusername;}
 
-    public String getDateandendtime() {
-        return dateandendtime;
-    }
+    public String getDateandendtime() {return dateandendtime;}
 
     public void setDateandendtime(String dateandendtime) {
         this.dateandendtime = dateandendtime;
     }
+
+    public String getResultForPlayer() {return resultForPlayer;}
+
+    public void setResultForPlayer(String resultForPlayer) {this.resultForPlayer = resultForPlayer;}
+
+    public String getEndOfGameBy() {return endOfGameBy;}
+
+    public void setEndOfGameBy(String endOfGameBy) {this.endOfGameBy = endOfGameBy;}
 }
