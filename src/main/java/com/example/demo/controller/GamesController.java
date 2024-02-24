@@ -17,6 +17,14 @@ public class GamesController {
     @RequestMapping("/games")
     public List<Game> getGames(){
 
+        // 1. We check the date of the last game in the database
+        String lastGameMonth = gamesService.getLastGameMonth();
+        System.out.println(lastGameMonth);
+
+        // 2. appeler l'api en fonction de la date de la derniere partie
+        gamesService.updateGamesFromChessCom("Self_destruction_lets_go", lastGameMonth);
+
+        // renvoyer les parties une fois que tout est à jours
         return gamesService.getGames();
     }
 
