@@ -63,8 +63,8 @@ public class UploadController {
         // Create a list of games from the uploaded file
         List<Game> currentGamesList = createGamesList(filePath);
 
-        String playerUsername = findPlayerUsername(currentGamesList);
-
+        //String playerUsername = findPlayerUsername(currentGamesList);
+        String playerUsername = "Self_Destruction_Lets_Go";
 
 
         for(Game game : currentGamesList){
@@ -168,24 +168,6 @@ public class UploadController {
         return games;
     }
 
-    public static String findPlayerUsername(List<Game> games) {
-
-        // Function to find the username of the player we have the most in white and black
-        List<String> allUsernamesList = games.stream()
-                .flatMap(game -> Stream.of(game.getWhite(), game.getBlack()))
-                .toList();
-
-        // We find the username that appears the most
-        Map<String, Long> usernameCounts = allUsernamesList.stream()
-                .collect(Collectors.groupingBy(String::toString, Collectors.counting()));
-
-        String playerUsername = usernameCounts.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(null);
-
-        return playerUsername;
-    }
 
     public static String formatMoves(String moves){
 
