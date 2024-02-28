@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Comparator;
 import org.springframework.web.client.RestTemplate;
 import java.time.YearMonth;
@@ -82,8 +83,25 @@ public class GamesService {
                 // Appel à l'API
                 String response = restTemplate.getForObject(url, String.class);
 
-                // Create a list of games from the uploaded file
+                // Create a list of games
                 List<Game> currentGamesList = createGamesList(response);
+
+                String playerUsername = "Self_Destruction_Lets_Go";
+
+                for(Game game : currentGamesList){
+
+                    game.setPlayerusername(playerUsername);
+
+                    game.setMoves(formatMoves(game.getMoves()));
+
+                    game.setResultForPlayer(findResultForPlayer(game.getTermination(), game.getPlayerusername()));
+
+                    game.setEndOfGameBy(HowEndedTheGame(game.getTermination()));
+
+                    // We add the Game to the database
+                    addGame(game);
+                }
+
 
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -204,8 +222,55 @@ public class GamesService {
 
     }
 
+    public static String formatMoves(String moves){
 
 
+        // Regex to delete what is inside {}
+        String cleanedString = moves.replaceAll("\\{[^}]+\\}", "");
 
+        // Split the string into an array of moves
+        String[] movesArray = cleanedString.split(" ");
+
+        // Filter out moves containing "..."
+        List<String> filteredMovesList = Arrays.stream(movesArray)
+                .filter(move -> !move.contains("..."))
+                .toList();
+
+        // Join the filtered moves into a string
+        String filteredMoves = String.join(" ", filteredMovesList);
+
+        // Replace double spaces with single space
+        return filteredMoves.replaceAll("  ", " ");
+
+
+    }
+
+    public static String findResultForPlayer(String termination, String playerUsername){
+        String result = "";
+        if(termination.contains("Partie nulle")){
+            result = "drawn";
+        }
+        else if (termination.contains(playerUsername)){
+            result = "won";
+        }
+        else {
+            result = "lost";
+        }
+        return result;
+    }
+
+    public static String HowEndedTheGame(String termination){
+        String result = "";
+
+        if(termination.contains("temps")){result = "time";}
+        else if (termination.contains("échec et mat")) {result = "checkmate";}
+        else if (termination.contains("abandon")) {result = "abandonment";}
+        else if (termination.contains("accord mutuel")) {result = "agreement";}
+        else if (termination.contains("manque de matériel")) {result = "lack of equipment";}
+        else if (termination.contains("pat")) {result = "pat";}
+        else if (termination.contains("répétition")) {result = "repeat";}
+
+        return result;
+    }
 
 }
