@@ -22,20 +22,24 @@ import java.util.List;
 public class GamesService {
 
     @Autowired
-    private GamesRepository gameRepository;
+    private GamesRepository gamesRepository;
 
-    public String getLastGameMonth() {
-        List<Game> games = new ArrayList<>();
+    public String getLastGameMonth(String username) {
+
+        List<Game> games = gamesRepository.findByPlayerusername(username);
 
         //gameRepository.findAll().forEach(game -> games.add(game));
-        gameRepository.findAll().forEach(games::add);
+        //gamesRepository.findAll().forEach(games::add);
 
         if (games.isEmpty()) {
             return "Aucune partie trouvée";
         }
+
+        // Date format
         DateTimeFormatter sourceFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter targetFormatter = DateTimeFormatter.ofPattern("yyyy/MM");
 
+        // We look for the last Game
         Game lastGame = games.stream()
                 .max(Comparator.comparing(game -> LocalDate.parse(game.getDate(), sourceFormatter)))
                 .orElse(null);
@@ -43,24 +47,26 @@ public class GamesService {
         if (lastGame == null) {
             return "Aucune partie trouvée";
         }
+
+        // We look for the date of the last Game
         LocalDate lastGameDate = LocalDate.parse(lastGame.getDate(), sourceFormatter);
         return lastGameDate.format(targetFormatter);
     }
 
     public List<Game> getGames(){
         List<Game> games = new ArrayList<>();
-        gameRepository.findAll().forEach(game -> {
+        gamesRepository.findAll().forEach(game -> {
             games.add(game);
         });
         return games;
     }
     public void addGame(Game game){
-        gameRepository.save(game);
+        gamesRepository.save(game);
     }
 
 
 
-    public void getGamesFromChessCom(String username, String lastGameMonth) {
+    public void getGamesFromChessCom(String username, String lastGameMonth, int monthsToFetch) {
 
         YearMonth startMonth;
 
@@ -68,16 +74,15 @@ public class GamesService {
         if (!lastGameMonth.equals("Aucune partie trouvée")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
             startMonth = YearMonth.parse(lastGameMonth, formatter).plusMonths(1);
-            // Sinon, on définit la date de début il y a 2 ans
         } else {
-            startMonth = YearMonth.now().minusYears(2).withMonth(1);
+            startMonth = YearMonth.now().minusMonths(monthsToFetch);
         }
 
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth endMonth = YearMonth.now();
         RestTemplate restTemplate = new RestTemplate();
 
         // boucle sur les endpoints
-        for (YearMonth month = startMonth; month.isBefore(currentMonth.plusMonths(1)); month = month.plusMonths(1)) {
+        for (YearMonth month = startMonth; !month.isAfter(endMonth); month = month.plusMonths(1)) {
             String url = String.format("https://api.chess.com/pub/player/%s/games/%d/%02d", username, month.getYear(), month.getMonthValue());
             try {
                 // Appel à l'API
@@ -86,11 +91,9 @@ public class GamesService {
                 // Create a list of games
                 List<Game> currentGamesList = createGamesList(response);
 
-                String playerUsername = "Self_Destruction_Lets_Go";
-
                 for(Game game : currentGamesList){
 
-                    game.setPlayerusername(playerUsername);
+                    game.setPlayerusername(username);
 
                     game.setMoves(formatMoves(game.getMoves()));
 
@@ -130,10 +133,6 @@ public class GamesService {
             int blackRating = black.getInt("rating");
             String whiteUsername = white.getString("username");
             String blackUsername = black.getString("username");
-
-
-
-
 
             try (BufferedReader reader = new BufferedReader(new StringReader(pgnData))) {
                 String line;
@@ -188,7 +187,6 @@ public class GamesService {
                             case "Termination":
                                 currentGame.setTermination(value);
                                 break;
-                            // Ajoutez d'autres cas si nécessaire
                             default:
                                 break;
                         }
