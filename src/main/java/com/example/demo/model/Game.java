@@ -16,13 +16,15 @@ public class Game {
     private Integer whiteelo;
     private Integer blackelo;
     private String timecontrol;
-    private String endtime;
+    private String endTime;
     private String termination;
     private String moves;
     private String playerusername;
-    private String resultForPlayer;
-    private String endOfGameBy;
-
+    private String resultforplayer;
+    private String endofgameby;
+    private double accuracy;
+    private String opening;
+    private Integer playerelo;
     @Indexed(unique = true)
     private String dateandendtime;
 
@@ -101,12 +103,12 @@ public class Game {
         this.timecontrol = timecontrol;
     }
 
-    public String getEndtime() {
-        return endtime;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public void setEndtime(String endtime) {
-        this.endtime = endtime;
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 
     public String getTermination() {
@@ -133,11 +135,35 @@ public class Game {
         this.dateandendtime = dateandendtime;
     }
 
-    public String getResultForPlayer() {return resultForPlayer;}
+    public String getResultforplayer() {return resultforplayer;}
 
-    public void setResultForPlayer(String resultForPlayer) {this.resultForPlayer = resultForPlayer;}
+    public void setResultforplayer(String resultforplayer) {this.resultforplayer = resultforplayer;}
 
-    public String getEndOfGameBy() {return endOfGameBy;}
+    public String getEndofgameby() {return endofgameby;}
 
-    public void setEndOfGameBy(String endOfGameBy) {this.endOfGameBy = endOfGameBy;}
+    public void setEndofgameby(String endofgameby) {this.endofgameby = endofgameby;}
+
+    public double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public String getOpening() {
+        return opening;
+    }
+
+    public void setOpening(String opening) {
+        this.opening = opening;
+    }
+
+    public Integer getPlayerelo() {
+        return playerelo;
+    }
+
+    public void setPlayerelo(Integer playerelo) {
+        this.playerelo = playerelo;
+    }
 }

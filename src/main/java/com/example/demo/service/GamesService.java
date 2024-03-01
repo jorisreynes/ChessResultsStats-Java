@@ -11,12 +11,11 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
 import org.springframework.web.client.RestTemplate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class GamesService {
@@ -27,9 +26,6 @@ public class GamesService {
     public String getLastGameMonth(String username) {
 
         List<Game> games = gamesRepository.findByPlayerusername(username);
-
-        //gameRepository.findAll().forEach(game -> games.add(game));
-        //gamesRepository.findAll().forEach(games::add);
 
         if (games.isEmpty()) {
             return "Aucune partie trouvée";
@@ -53,43 +49,41 @@ public class GamesService {
         return lastGameDate.format(targetFormatter);
     }
 
-    public List<Game> getGames(){
-        List<Game> games = new ArrayList<>();
-        gamesRepository.findAll().forEach(game -> {
-            games.add(game);
-        });
-        return games;
-    }
-    public void addGame(Game game){
-        gamesRepository.save(game);
-    }
 
+    public void getGamesFromChessCom(String username, String lastGameMonth, int maximumNumberOfMonthsToFetch) {
 
+        YearMonth now = YearMonth.now();
+        YearMonth startMonth = now; // We start by the current month by default
+        int numberOfMonthsToFetch;
 
-    public void getGamesFromChessCom(String username, String lastGameMonth, int monthsToFetch) {
-
-        YearMonth startMonth;
-
-        // Si quelque chose en BDD, on définit la date de début au mois en cours
         if (!lastGameMonth.equals("Aucune partie trouvée")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
-            startMonth = YearMonth.parse(lastGameMonth, formatter).plusMonths(1);
+            YearMonth lastGameYearMonth = YearMonth.parse(lastGameMonth, formatter);
+
+            // We calculate the number of months between the lastGameMonth and the current month
+            numberOfMonthsToFetch = (int) lastGameYearMonth.until(now, ChronoUnit.MONTHS) + 1; // +1 to include lastGameMonth
+
+            // If the calculated number is bigger than maximumNumberOfMonthsToFetch, we use maximumNumberOfMonthsToFetch
+            numberOfMonthsToFetch = Math.min(numberOfMonthsToFetch, maximumNumberOfMonthsToFetch);
         } else {
-            startMonth = YearMonth.now().minusMonths(monthsToFetch);
+            // If there is no game in database, we fetch maximumNumberOfMonthsToFetch months of data
+            numberOfMonthsToFetch = maximumNumberOfMonthsToFetch;
         }
 
-        YearMonth endMonth = YearMonth.now();
         RestTemplate restTemplate = new RestTemplate();
 
-        // boucle sur les endpoints
-        for (YearMonth month = startMonth; !month.isAfter(endMonth); month = month.plusMonths(1)) {
-            String url = String.format("https://api.chess.com/pub/player/%s/games/%d/%02d", username, month.getYear(), month.getMonthValue());
+        for (int i = 0; i < numberOfMonthsToFetch; i++) {
+
+            // Calcul du mois pour lequel effectuer l'appel API
+            YearMonth monthToFetch = now.minusMonths(i);
+
+            String url = String.format("https://api.chess.com/pub/player/%s/games/%d/%02d", username, monthToFetch.getYear(), monthToFetch.getMonthValue());
             try {
-                // Appel à l'API
+                // API call
                 String response = restTemplate.getForObject(url, String.class);
 
                 // Create a list of games
-                List<Game> currentGamesList = createGamesList(response);
+                List<Game> currentGamesList = createFormattedGamesList(response, username);
 
                 for(Game game : currentGamesList){
 
@@ -97,15 +91,13 @@ public class GamesService {
 
                     game.setMoves(formatMoves(game.getMoves()));
 
-                    game.setResultForPlayer(findResultForPlayer(game.getTermination(), game.getPlayerusername()));
+                    game.setResultforplayer(findResultForPlayer(game.getTermination(), game.getPlayerusername()));
 
-                    game.setEndOfGameBy(HowEndedTheGame(game.getTermination()));
+                    game.setEndofgameby(howEndedTheGame(game.getTermination()));
 
                     // We add the Game to the database
-                    addGame(game);
+                    saveGameInDatabase(game);
                 }
-
-
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -115,24 +107,30 @@ public class GamesService {
     }
 
     // Create a list of Game objects
-    public static List<Game> createGamesList(String reponse) {
+    public static List<Game> createFormattedGamesList(String response, String username) {
 
-        JSONObject obj = new JSONObject(reponse);
+        JSONObject obj = new JSONObject(response);
         JSONArray games = obj.getJSONArray("games");
 
         List<Game> gamesToReturn = new ArrayList<>();
 
         for (int i = 0; i < games.length(); i++) {
+
             JSONObject game = games.getJSONObject(i);
-            String url = game.getString("url");
             String pgnData = game.getString("pgn");
             JSONObject white = game.getJSONObject("white");
             JSONObject black = game.getJSONObject("black");
 
-            int whiteRating = white.getInt("rating");
-            int blackRating = black.getInt("rating");
-            String whiteUsername = white.getString("username");
-            String blackUsername = black.getString("username");
+            // Accuracy part, old games dont have accuracies
+            double accuracy =0;
+            if(game.has("accuracies")){
+                if(Objects.equals(white.getString("username"), username)){
+                    accuracy = game.getJSONObject("accuracies").getDouble("white");
+                }
+                else{
+                    accuracy = game.getJSONObject("accuracies").getDouble("black");
+                }
+            }
 
             try (BufferedReader reader = new BufferedReader(new StringReader(pgnData))) {
                 String line;
@@ -145,6 +143,10 @@ public class GamesService {
                         }
                         currentGame = new Game();
                     }
+
+                    if(accuracy!= 0 && currentGame!= null && currentGame.getAccuracy() == 0) {
+                        currentGame.setAccuracy(accuracy);
+                    };
 
                     if (line.startsWith("[")) {
                         String key = line.substring(1, line.indexOf(' '));
@@ -182,7 +184,7 @@ public class GamesService {
                                 currentGame.setTimecontrol(value);
                                 break;
                             case "EndTime":
-                                currentGame.setEndtime(value);
+                                currentGame.setEndTime(value);
                                 break;
                             case "Termination":
                                 currentGame.setTermination(value);
@@ -196,33 +198,22 @@ public class GamesService {
                         }
                         currentGame.setMoves(currentGame.getMoves() + line + " ");
                     }
-                    // Cette ligne devrait être à l'intérieur de la boucle while, juste avant sa fin
                     if (currentGame != null) {
-                        currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndtime());
+                        currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndTime());
                     }
                 }
-
                 if (currentGame != null) {
                     gamesToReturn.add(currentGame);
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-
-
         }
         return gamesToReturn;
-
-
-
     }
 
     public static String formatMoves(String moves){
-
-
+        
         // Regex to delete what is inside {}
         String cleanedString = moves.replaceAll("\\{[^}]+\\}", "");
 
@@ -239,8 +230,6 @@ public class GamesService {
 
         // Replace double spaces with single space
         return filteredMoves.replaceAll("  ", " ");
-
-
     }
 
     public static String findResultForPlayer(String termination, String playerUsername){
@@ -257,18 +246,43 @@ public class GamesService {
         return result;
     }
 
-    public static String HowEndedTheGame(String termination){
+    public static String howEndedTheGame(String termination){
         String result = "";
 
-        if(termination.contains("temps")){result = "time";}
-        else if (termination.contains("échec et mat")) {result = "checkmate";}
-        else if (termination.contains("abandon")) {result = "abandonment";}
-        else if (termination.contains("accord mutuel")) {result = "agreement";}
-        else if (termination.contains("manque de matériel")) {result = "lack of equipment";}
-        else if (termination.contains("pat")) {result = "pat";}
-        else if (termination.contains("répétition")) {result = "repeat";}
-
+        if(termination.contains("temps") || termination.contains("time")) {
+            result = "time";
+        }
+        else if (termination.contains("échec et mat") || termination.contains("checkmate")) {
+            result = "checkmate";
+        }
+        else if (termination.contains("abandon") || termination.contains("resignation")) {
+            result = "abandonment";
+        }
+        else if (termination.contains("accord mutuel") || termination.contains("mutual agreement")) {
+            result = "agreement";
+        }
+        else if (termination.contains("manque de matériel") || termination.contains("insufficient material")) {
+            result = "lack of equipment";
+        }
+        else if (termination.contains("pat") || termination.contains("stalemate")) {
+            result = "pat";
+        }
+        else if (termination.contains("répétition") || termination.contains("repetition")) {
+            result = "repeat";
+        }
         return result;
     }
 
+    public void saveGameInDatabase(Game game){
+        try{
+            gamesRepository.save(game);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public List<Game> getGames(String username){
+        return gamesRepository.findByPlayerusername(username);
+    }
 }
