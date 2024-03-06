@@ -7,6 +7,9 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.LocalDate;
@@ -22,6 +25,9 @@ public class GamesService {
 
     @Autowired
     private GamesRepository gamesRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(GamesService.class);
+
 
     public String getLastGameMonth(String username) {
 
@@ -87,7 +93,7 @@ public class GamesService {
 
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
-                e.printStackTrace();
+                logger.error("Error in getGamesFromChessCom", e);
             }
         }
         return dataList;
@@ -203,7 +209,7 @@ public class GamesService {
                         gamesToReturn.add(currentGame);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Error in createFormattedGamesList", e);
                 }
             }
         }
@@ -276,7 +282,7 @@ public class GamesService {
             gamesRepository.saveAll(game);
         }
         catch(Exception e){
-            e.printStackTrace();
+            logger.error("Error in saveGameInDatabase", e);
         }
     }
 
