@@ -20,15 +20,22 @@ public class GamesController {
         // 1. We check the date of the last game in the database
         String lastGameMonth = gamesService.getLastGameMonth(username);
 
-        // 2. We call the API for 12 months before now
-        gamesService.getGamesFromChessCom(username, lastGameMonth, 3);
+        // 2. We get the data from the chess.com API
+        List<String> dataList = gamesService.getGamesFromChessCom(username, lastGameMonth, 3);
 
+        // 3. We create a list of games with the data
+        List<Game> currentGamesList = gamesService.createFormattedGamesList(dataList, username);
+
+        // 4. We save the list in database
+        gamesService.saveGameInDatabase(currentGamesList);
+
+        // 5. We return all games for this user to the front
         return gamesService.getGames(username);
     }
 
     @RequestMapping(method = RequestMethod.POST, value="/games")
-    public void addGame(@RequestBody Game game)
+    public void addGame(@RequestBody List<Game> gameList)
     {
-        gamesService.saveGameInDatabase(game);
+        gamesService.saveGameInDatabase(gameList);
     }
 }

@@ -50,10 +50,11 @@ public class GamesService {
     }
 
 
-    public void getGamesFromChessCom(String username, String lastGameMonth, int maximumNumberOfMonthsToFetch) {
+    public List<String> getGamesFromChessCom(String username, String lastGameMonth, int maximumNumberOfMonthsToFetch) {
+
+        List<String> dataList = new ArrayList<>();
 
         YearMonth now = YearMonth.now();
-        YearMonth startMonth = now; // We start by the current month by default
         int numberOfMonthsToFetch;
 
         if (!lastGameMonth.equals("Aucune partie trouvée")) {
@@ -82,131 +83,128 @@ public class GamesService {
                 // API call
                 String response = restTemplate.getForObject(url, String.class);
 
-                // Create a list of games
-                List<Game> currentGamesList = createFormattedGamesList(response, username);
+                dataList.add(response);
 
-                for(Game game : currentGamesList){
-
-                    game.setPlayerusername(username);
-
-                    game.setMoves(formatMoves(game.getMoves()));
-
-                    game.setResultforplayer(findResultForPlayer(game.getTermination(), game.getPlayerusername()));
-
-                    game.setEndofgameby(howEndedTheGame(game.getTermination()));
-
-                    // We add the Game to the database
-                    saveGameInDatabase(game);
-                }
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 Thread.currentThread().interrupt();
                 e.printStackTrace();
             }
         }
+        return dataList;
     }
 
     // Create a list of Game objects
-    public static List<Game> createFormattedGamesList(String response, String username) {
-
-        JSONObject obj = new JSONObject(response);
-        JSONArray games = obj.getJSONArray("games");
+    public List<Game> createFormattedGamesList(List<String> dataList, String username) {
 
         List<Game> gamesToReturn = new ArrayList<>();
 
-        for (int i = 0; i < games.length(); i++) {
+        for(String data : dataList)
+        {
+            JSONObject obj = new JSONObject(data);
+            JSONArray games = obj.getJSONArray("games");
 
-            JSONObject game = games.getJSONObject(i);
-            String pgnData = game.getString("pgn");
-            JSONObject white = game.getJSONObject("white");
-            JSONObject black = game.getJSONObject("black");
+            for (int i = 0; i < games.length(); i++) {
 
-            // Accuracy part, old games dont have accuracies
-            double accuracy =0;
-            if(game.has("accuracies")){
-                if(Objects.equals(white.getString("username"), username)){
-                    accuracy = game.getJSONObject("accuracies").getDouble("white");
-                }
-                else{
-                    accuracy = game.getJSONObject("accuracies").getDouble("black");
-                }
-            }
+                JSONObject game = games.getJSONObject(i);
+                String pgnData = game.getString("pgn");
+                JSONObject white = game.getJSONObject("white");
 
-            try (BufferedReader reader = new BufferedReader(new StringReader(pgnData))) {
-                String line;
-                Game currentGame = null;
-
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("[Event ")) {
-                        if (currentGame != null) {
-                            gamesToReturn.add(currentGame);
-                        }
-                        currentGame = new Game();
+                // Accuracy part, old games dont have accuracies
+                double accuracy =0;
+                if(game.has("accuracies")){
+                    if(Objects.equals(white.getString("username"), username)){
+                        accuracy = game.getJSONObject("accuracies").getDouble("white");
                     }
+                    else{
+                        accuracy = game.getJSONObject("accuracies").getDouble("black");
+                    }
+                }
 
-                    if(accuracy!= 0 && currentGame!= null && currentGame.getAccuracy() == 0) {
-                        currentGame.setAccuracy(accuracy);
-                    };
+                try (BufferedReader reader = new BufferedReader(new StringReader(pgnData))) {
+                    String line;
+                    Game currentGame = null;
 
-                    if (line.startsWith("[")) {
-                        String key = line.substring(1, line.indexOf(' '));
-                        String value = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
-
-                        switch (key) {
-                            case "Event":
-                                currentGame.setEvent(value);
-                                break;
-                            case "Site":
-                                currentGame.setSite(value);
-                                break;
-                            case "Date":
-                                currentGame.setDate(value);
-                                break;
-                            case "Round":
-                                currentGame.setRound(value);
-                                break;
-                            case "White":
-                                currentGame.setWhite(value);
-                                break;
-                            case "Black":
-                                currentGame.setBlack(value);
-                                break;
-                            case "Result":
-                                currentGame.setResult(value);
-                                break;
-                            case "WhiteElo":
-                                currentGame.setWhiteelo(Integer.parseInt(value));
-                                break;
-                            case "BlackElo":
-                                currentGame.setBlackelo(Integer.parseInt(value));
-                                break;
-                            case "TimeControl":
-                                currentGame.setTimecontrol(value);
-                                break;
-                            case "EndTime":
-                                currentGame.setEndTime(value);
-                                break;
-                            case "Termination":
-                                currentGame.setTermination(value);
-                                break;
-                            default:
-                                break;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("[Event ")) {
+                            if (currentGame != null) {
+                                gamesToReturn.add(currentGame);
+                            }
+                            currentGame = new Game();
                         }
-                    } else if (!line.trim().isEmpty()) {
-                        if (currentGame.getMoves() == null) {
-                            currentGame.setMoves("");
+
+                        if(accuracy!= 0 && currentGame!= null && currentGame.getAccuracy() == 0) {
+                            currentGame.setAccuracy(accuracy);
                         }
-                        currentGame.setMoves(currentGame.getMoves() + line + " ");
+
+                        if (currentGame != null && line.startsWith("[")) {
+                            String key = line.substring(1, line.indexOf(' '));
+                            String value = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
+
+                            switch (key) {
+                                case "Event":
+                                    currentGame.setEvent(value);
+                                    break;
+                                case "Site":
+                                    currentGame.setSite(value);
+                                    break;
+                                case "Date":
+                                    currentGame.setDate(value);
+                                    break;
+                                case "Round":
+                                    currentGame.setRound(value);
+                                    break;
+                                case "White":
+                                    currentGame.setWhite(value);
+                                    break;
+                                case "Black":
+                                    currentGame.setBlack(value);
+                                    break;
+                                case "Result":
+                                    currentGame.setResult(value);
+                                    break;
+                                case "WhiteElo":
+                                    currentGame.setWhiteelo(Integer.parseInt(value));
+                                    break;
+                                case "BlackElo":
+                                    currentGame.setBlackelo(Integer.parseInt(value));
+                                    break;
+                                case "TimeControl":
+                                    currentGame.setTimecontrol(value);
+                                    break;
+                                case "EndTime":
+                                    currentGame.setEndTime(value);
+                                    break;
+                                case "Termination":
+                                    currentGame.setTermination(value);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else if (currentGame != null && !line.trim().isEmpty()) {
+                            if (currentGame.getMoves() == null) {
+                                currentGame.setMoves("");
+                            }
+                            currentGame.setMoves(currentGame.getMoves() + line + " ");
+                        }
+                        if (currentGame != null) {
+                            currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndTime());
+                        }
                     }
                     if (currentGame != null) {
-                        currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndTime());
+
+                        currentGame.setPlayerusername(username);
+
+                        currentGame.setMoves(formatMoves(currentGame.getMoves()));
+
+                        currentGame.setResultforplayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerusername()));
+
+                        currentGame.setEndofgameby(howEndedTheGame(currentGame.getTermination()));
+
+                        gamesToReturn.add(currentGame);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                if (currentGame != null) {
-                    gamesToReturn.add(currentGame);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return gamesToReturn;
@@ -233,7 +231,7 @@ public class GamesService {
     }
 
     public static String findResultForPlayer(String termination, String playerUsername){
-        String result = "";
+        String result;
         if(termination.contains("Partie nulle")){
             result = "drawn";
         }
@@ -273,9 +271,9 @@ public class GamesService {
         return result;
     }
 
-    public void saveGameInDatabase(Game game){
+    public void saveGameInDatabase(List<Game> game){
         try{
-            gamesRepository.save(game);
+            gamesRepository.saveAll(game);
         }
         catch(Exception e){
             e.printStackTrace();
