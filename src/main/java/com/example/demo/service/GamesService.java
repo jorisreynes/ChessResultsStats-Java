@@ -28,7 +28,6 @@ public class GamesService {
 
     private static final Logger logger = LoggerFactory.getLogger(GamesService.class);
 
-
     public String getLastGameMonth(String username) {
 
         List<Game> games = gamesRepository.findByPlayerusername(username);
@@ -54,7 +53,6 @@ public class GamesService {
         LocalDate lastGameDate = LocalDate.parse(lastGame.getDate(), sourceFormatter);
         return lastGameDate.format(targetFormatter);
     }
-
 
     public List<String> getGamesFromChessCom(String username, String lastGameMonth, int maximumNumberOfMonthsToFetch) {
 
@@ -204,6 +202,13 @@ public class GamesService {
                         }
                     }
                     if (currentGame != null) {
+
+                        if(Objects.equals(currentGame.getWhite(), username)){
+                            currentGame.setPlayerelo(currentGame.getWhiteelo());
+                        }
+                        else {
+                            currentGame.setPlayerelo(currentGame.getBlackelo());
+                        }
 
                         currentGame.setPlayerusername(username);
 
