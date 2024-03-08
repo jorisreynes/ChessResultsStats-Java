@@ -183,6 +183,13 @@ public class GamesService {
                                 case "Termination":
                                     currentGame.setTermination(value);
                                     break;
+                                case "ECO":
+                                    currentGame.setEco(value);
+                                    break;
+                                case "ECOUrl":
+                                    String[] parts = value.split("/");
+                                    currentGame.setOpening(parts[parts.length -1]);
+                                    break;
                                 default:
                                     break;
                             }

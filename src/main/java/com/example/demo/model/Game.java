@@ -24,6 +24,7 @@ public class Game {
     private String endofgameby;
     private double accuracy;
     private String opening;
+    private String eco;
     private Integer playerelo;
     @Indexed(unique = true)
     private String dateandendtime;
@@ -158,6 +159,10 @@ public class Game {
     public void setOpening(String opening) {
         this.opening = opening;
     }
+
+    public String getEco() { return eco; }
+
+    public void setEco(String eco) { this.eco = eco; }
 
     public Integer getPlayerelo() {
         return playerelo;
