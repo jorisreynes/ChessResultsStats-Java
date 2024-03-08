@@ -77,7 +77,7 @@ public class GamesService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        for (int i = 0; i < numberOfMonthsToFetch; i++) {
+        for (int i = numberOfMonthsToFetch -1; i >= 0; i--) {
 
             // Calcul du mois pour lequel effectuer l'appel API
             YearMonth monthToFetch = now.minusMonths(i);
