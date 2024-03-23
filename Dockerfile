@@ -15,7 +15,7 @@ FROM openjdk:17-oracle
 COPY --from=build /home/app/target/ChessResultsStats-0.0.1-SNAPSHOT.jar /usr/local/lib/ChessResultsStats.jar
 
 # Exposer le port sur lequel l'application s'exécute
-EXPOSE 8080
+EXPOSE 80
 
 # Exécuter l'application
 ENTRYPOINT ["java","-jar","/usr/local/lib/ChessResultsStats.jar"]
