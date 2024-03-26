@@ -15,7 +15,9 @@ public class Game {
     private String result;
     private Integer whiteelo;
     private Integer blackelo;
+    private Integer playerelo;
     private String timecontrol;
+    private String category;
     private String endTime;
     private String termination;
     private String moves;
@@ -25,7 +27,7 @@ public class Game {
     private double accuracy;
     private String opening;
     private String eco;
-    private Integer playerelo;
+
     @Indexed(unique = true)
     private String dateandendtime;
 
@@ -170,5 +172,13 @@ public class Game {
 
     public void setPlayerelo(Integer playerelo) {
         this.playerelo = playerelo;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

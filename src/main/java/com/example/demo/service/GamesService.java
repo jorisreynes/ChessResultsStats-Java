@@ -214,6 +214,8 @@ public class GamesService {
 
                         currentGame.setMoves(formatMoves(currentGame.getMoves()));
 
+                        currentGame.setCategory(setCategoryFromTimeControl(currentGame.getTimecontrol()));
+
                         currentGame.setResultforplayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerusername()));
 
                         currentGame.setEndofgameby(howEndedTheGame(currentGame.getTermination()));
@@ -260,6 +262,22 @@ public class GamesService {
             result = "lost";
         }
         return result;
+    }
+
+    public static String setCategoryFromTimeControl(String timeControl) {
+        String category = "";
+        switch (timeControl) {
+            case "60", "120", "120+1":
+                category = "bullet";
+            break;
+            case "180", "180+2", "300":
+                category = "blitz";
+            break;
+            case "600", "600+5", "1800":
+                category = "rapid";
+                break;
+        }
+        return category;
     }
 
     public static String howEndedTheGame(String termination){
