@@ -1,9 +1,9 @@
 package com.example.demo.model;
 
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(collection = "games")
+@Document(indexName  = "games")
 public class Game {
 
     private String event;
@@ -28,7 +28,7 @@ public class Game {
     private String opening;
     private String eco;
 
-    @Indexed(unique = true)
+    @Id
     private String dateandendtime;
 
     public String getEvent() {
