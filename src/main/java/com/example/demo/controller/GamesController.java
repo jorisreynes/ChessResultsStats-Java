@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Game;
 import com.example.demo.service.GamesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.List;
 @CrossOrigin(origins="*")
 @RestController
 public class GamesController {
+
+    @Value("${test}")
+    private String testValue;
 
     @Autowired
     private GamesService gamesService;
@@ -37,5 +41,10 @@ public class GamesController {
     public void addGame(@RequestBody List<Game> gameList)
     {
         gamesService.saveGameInDatabase(gameList);
+    }
+
+    @RequestMapping("/test")
+    public String getTestValue(){
+        return "La valeur de la variable 'test' est : " + testValue;
     }
 }
