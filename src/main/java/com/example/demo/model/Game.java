@@ -13,23 +13,23 @@ public class Game {
     private String white;
     private String black;
     private String result;
-    private Integer whiteelo;
-    private Integer blackelo;
-    private Integer playerelo;
-    private String timecontrol;
+    private Integer whiteElo;
+    private Integer blackElo;
+    private Integer playerElo;
+    private String timeControl;
     private String category;
     private String endTime;
     private String termination;
     private String moves;
-    private String playerusername;
-    private String resultforplayer;
-    private String endofgameby;
+    private String playerUsername;
+    private String resultForPlayer;
+    private String endOfGameBy;
     private double accuracy;
     private String opening;
     private String eco;
 
     @Indexed(unique = true)
-    private String dateandendtime;
+    private String dateAndEndTime;
 
     public String getEvent() {
         return event;
@@ -82,28 +82,28 @@ public class Game {
         this.result = result;
     }
 
-    public Integer getWhiteelo() {
-        return whiteelo;
+    public Integer getWhiteElo() {
+        return whiteElo;
     }
 
-    public void setWhiteelo(Integer whiteelo) {
-        this.whiteelo = whiteelo;
+    public void setWhiteElo(Integer whiteElo) {
+        this.whiteElo = whiteElo;
     }
 
-    public Integer getBlackelo() {
-        return blackelo;
+    public Integer getBlackElo() {
+        return blackElo;
     }
 
-    public void setBlackelo(Integer blackelo) {
-        this.blackelo = blackelo;
+    public void setBlackElo(Integer blackElo) {
+        this.blackElo = blackElo;
     }
 
-    public String getTimecontrol() {
-        return timecontrol;
+    public String getTimeControl() {
+        return timeControl;
     }
 
-    public void setTimecontrol(String timecontrol) {
-        this.timecontrol = timecontrol;
+    public void setTimeControl(String timeControl) {
+        this.timeControl = timeControl;
     }
 
     public String getEndTime() {
@@ -128,23 +128,23 @@ public class Game {
 
     public void setMoves(String moves) {this.moves = moves;}
 
-    public String getPlayerusername() {return playerusername;}
+    public String getPlayerUsername() {return playerUsername;}
 
-    public void setPlayerusername(String playerusername) {this.playerusername = playerusername;}
+    public void setPlayerUsername(String playerUsername) {this.playerUsername = playerUsername;}
 
-    public String getDateandendtime() {return dateandendtime;}
+    public String getDateAndEndTime() {return dateAndEndTime;}
 
-    public void setDateandendtime(String dateandendtime) {
-        this.dateandendtime = dateandendtime;
+    public void setDateAndEndTime(String dateAndEndTime) {
+        this.dateAndEndTime = dateAndEndTime;
     }
 
-    public String getResultforplayer() {return resultforplayer;}
+    public String getResultForPlayer() {return resultForPlayer;}
 
-    public void setResultforplayer(String resultforplayer) {this.resultforplayer = resultforplayer;}
+    public void setResultForPlayer(String resultForPlayer) {this.resultForPlayer = resultForPlayer;}
 
-    public String getEndofgameby() {return endofgameby;}
+    public String getEndOfGameBy() {return endOfGameBy;}
 
-    public void setEndofgameby(String endofgameby) {this.endofgameby = endofgameby;}
+    public void setEndOfGameBy(String endOfGameBy) {this.endOfGameBy = endOfGameBy;}
 
     public double getAccuracy() {
         return accuracy;
@@ -166,12 +166,12 @@ public class Game {
 
     public void setEco(String eco) { this.eco = eco; }
 
-    public Integer getPlayerelo() {
-        return playerelo;
+    public Integer getPlayerElo() {
+        return playerElo;
     }
 
-    public void setPlayerelo(Integer playerelo) {
-        this.playerelo = playerelo;
+    public void setPlayerElo(Integer playerElo) {
+        this.playerElo = playerElo;
     }
 
     public String getCategory() {
