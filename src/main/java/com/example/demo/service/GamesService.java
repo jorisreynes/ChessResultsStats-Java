@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -28,7 +29,7 @@ public class GamesService {
 
     private static final Logger logger = LoggerFactory.getLogger(GamesService.class);
 
-    public String getLastGameMonth(String username) {
+    public String getLastGameDateAndTime(String username) {
 
         List<Game> games = gamesRepository.findByPlayerusername(username);
 
@@ -37,12 +38,11 @@ public class GamesService {
         }
 
         // Date format
-        DateTimeFormatter sourceFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        DateTimeFormatter targetFormatter = DateTimeFormatter.ofPattern("yyyy/MM");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
 
         // We look for the last Game
         Game lastGame = games.stream()
-                .max(Comparator.comparing(game -> LocalDate.parse(game.getDate(), sourceFormatter)))
+                .max(Comparator.comparing(game -> LocalDateTime.parse(game.getDateandendtime(), formatter)))
                 .orElse(null);
 
         if (lastGame == null) {
@@ -50,23 +50,26 @@ public class GamesService {
         }
 
         // We look for the date of the last Game
-        LocalDate lastGameDate = LocalDate.parse(lastGame.getDate(), sourceFormatter);
-        return lastGameDate.format(targetFormatter);
+        LocalDateTime lastGameDateTime = LocalDateTime.parse(lastGame.getDateandendtime(), formatter);
+        return lastGameDateTime.format(formatter);
     }
 
-    public List<String> getGamesFromChessCom(String username, String lastGameMonth, int maximumNumberOfMonthsToFetch) {
+    public List<String> getGamesFromChessCom(String username, String lastGameDateAndTime, int maximumNumberOfMonthsToFetch) {
 
         List<String> dataList = new ArrayList<>();
 
         YearMonth now = YearMonth.now();
         int numberOfMonthsToFetch;
 
-        if (!lastGameMonth.equals("Aucune partie trouvée")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
-            YearMonth lastGameYearMonth = YearMonth.parse(lastGameMonth, formatter);
+        if (!lastGameDateAndTime.equals("Aucune partie trouvée")) {
 
-            // We calculate the number of months between the lastGameMonth and the current month
-            numberOfMonthsToFetch = (int) lastGameYearMonth.until(now, ChronoUnit.MONTHS) + 1; // +1 to include lastGameMonth
+            // We transform the string yyyy.mm.dd hh:mm:ss into a date yyyy.mm
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(lastGameDateAndTime, formatter);
+            YearMonth lastGameYearMonth = YearMonth.from(dateTime);
+
+            // We calculate the number of months between the lastGameDateAndTime and the current month
+            numberOfMonthsToFetch = (int) lastGameYearMonth.until(now, ChronoUnit.MONTHS) + 1; // +1 to include lastGameDateAndTime
 
             // If the calculated number is bigger than maximumNumberOfMonthsToFetch, we use maximumNumberOfMonthsToFetch
             numberOfMonthsToFetch = Math.min(numberOfMonthsToFetch, maximumNumberOfMonthsToFetch);
@@ -79,7 +82,6 @@ public class GamesService {
 
         for (int i = numberOfMonthsToFetch -1; i >= 0; i--) {
 
-            // Calcul du mois pour lequel effectuer l'appel API
             YearMonth monthToFetch = now.minusMonths(i);
 
             String url = String.format("https://api.chess.com/pub/player/%s/games/%d/%02d", username, monthToFetch.getYear(), monthToFetch.getMonthValue());

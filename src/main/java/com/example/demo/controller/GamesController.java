@@ -17,11 +17,15 @@ public class GamesController {
     @RequestMapping("/games")
     public List<Game> getGames(@RequestParam String username){
 
-        // 1. We check the date of the last game in the database
-        String lastGameMonth = gamesService.getLastGameMonth(username);
 
-        // 2. We get the data from the chess.com API
-        List<String> dataList = gamesService.getGamesFromChessCom(username, lastGameMonth, 3);
+        // A faire:  passer cette date exacte a savegameindatabase avec la liste, puis enlever ce qui existe deja en bdd ou mieux, au moment de la creation de la liste
+        // et mettre quelques teste unitaires simples sur le formatage des parties
+
+        // 1. We check the date of the last game in the database
+        String lastGameDateAndTime = gamesService.getLastGameDateAndTime(username);
+
+        // 2. We get the data from the chess.com API, each string in the list is a month of data returned by the API
+        List<String> dataList = gamesService.getGamesFromChessCom(username, lastGameDateAndTime, 3);
 
         // 3. We create a list of games with the data
         List<Game> currentGamesList = gamesService.createFormattedGamesList(dataList, username);
