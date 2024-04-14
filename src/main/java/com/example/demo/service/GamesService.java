@@ -41,7 +41,7 @@ public class GamesService {
 
         // We look for the last Game
         Game lastGame = games.stream()
-                .max(Comparator.comparing(game -> LocalDateTime.parse(game.getDateandendtime(), formatter)))
+                .max(Comparator.comparing(game -> LocalDateTime.parse(game.getDateAndEndTime(), formatter)))
                 .orElse(null);
 
         if (lastGame == null) {
@@ -49,7 +49,7 @@ public class GamesService {
         }
 
         // We look for the date of the last Game
-        LocalDateTime lastGameDateTime = LocalDateTime.parse(lastGame.getDateandendtime(), formatter);
+        LocalDateTime lastGameDateTime = LocalDateTime.parse(lastGame.getDateAndEndTime(), formatter);
         return lastGameDateTime.format(formatter);
     }
 
@@ -199,7 +199,7 @@ public class GamesService {
                             currentGame.setMoves(currentGame.getMoves() + line + " ");
                         }
                         if (currentGame != null) {
-                            currentGame.setDateandendtime(currentGame.getDate() + " " + currentGame.getEndTime());
+                            currentGame.setDateAndEndTime(currentGame.getDate() + " " + currentGame.getEndTime());
                         }
                     }
                     if (currentGame != null) {
@@ -217,9 +217,9 @@ public class GamesService {
 
                         currentGame.setCategory(setCategoryFromTimeControl(currentGame.getTimeControl()));
 
-                        currentGame.setResultforplayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerUsername()));
+                        currentGame.setResultForPlayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerUsername()));
 
-                        currentGame.setEndofgameby(howEndedTheGame(currentGame.getTermination()));
+                        currentGame.setEndOfGameBy(howEndedTheGame(currentGame.getTermination()));
 
                         gamesToReturn.add(currentGame);
                     }

@@ -22,14 +22,14 @@ public class Game {
     private String termination;
     private String moves;
     private String playerUsername;
-    private String resultforplayer;
-    private String endofgameby;
+    private String resultForPlayer;
+    private String endOfGameBy;
     private double accuracy;
     private String opening;
     private String eco;
 
     @Indexed(unique = true)
-    private String dateandendtime;
+    private String dateAndEndTime;
 
     public String getEvent() {
         return event;
@@ -132,19 +132,19 @@ public class Game {
 
     public void setPlayerUsername(String playerUsername) {this.playerUsername = playerUsername;}
 
-    public String getDateandendtime() {return dateandendtime;}
+    public String getDateAndEndTime() {return dateAndEndTime;}
 
-    public void setDateandendtime(String dateandendtime) {
-        this.dateandendtime = dateandendtime;
+    public void setDateAndEndTime(String dateAndEndTime) {
+        this.dateAndEndTime = dateAndEndTime;
     }
 
-    public String getResultforplayer() {return resultforplayer;}
+    public String getResultForPlayer() {return resultForPlayer;}
 
-    public void setResultforplayer(String resultforplayer) {this.resultforplayer = resultforplayer;}
+    public void setResultForPlayer(String resultForPlayer) {this.resultForPlayer = resultForPlayer;}
 
-    public String getEndofgameby() {return endofgameby;}
+    public String getEndOfGameBy() {return endOfGameBy;}
 
-    public void setEndofgameby(String endofgameby) {this.endofgameby = endofgameby;}
+    public void setEndOfGameBy(String endOfGameBy) {this.endOfGameBy = endOfGameBy;}
 
     public double getAccuracy() {
         return accuracy;
