@@ -13,15 +13,15 @@ public class Game {
     private String white;
     private String black;
     private String result;
-    private Integer whiteelo;
-    private Integer blackelo;
-    private Integer playerelo;
-    private String timecontrol;
+    private Integer whiteElo;
+    private Integer blackElo;
+    private Integer playerElo;
+    private String timeControl;
     private String category;
     private String endTime;
     private String termination;
     private String moves;
-    private String playerusername;
+    private String playerUsername;
     private String resultforplayer;
     private String endofgameby;
     private double accuracy;
@@ -82,28 +82,28 @@ public class Game {
         this.result = result;
     }
 
-    public Integer getWhiteelo() {
-        return whiteelo;
+    public Integer getWhiteElo() {
+        return whiteElo;
     }
 
-    public void setWhiteelo(Integer whiteelo) {
-        this.whiteelo = whiteelo;
+    public void setWhiteElo(Integer whiteElo) {
+        this.whiteElo = whiteElo;
     }
 
-    public Integer getBlackelo() {
-        return blackelo;
+    public Integer getBlackElo() {
+        return blackElo;
     }
 
-    public void setBlackelo(Integer blackelo) {
-        this.blackelo = blackelo;
+    public void setBlackElo(Integer blackElo) {
+        this.blackElo = blackElo;
     }
 
-    public String getTimecontrol() {
-        return timecontrol;
+    public String getTimeControl() {
+        return timeControl;
     }
 
-    public void setTimecontrol(String timecontrol) {
-        this.timecontrol = timecontrol;
+    public void setTimeControl(String timeControl) {
+        this.timeControl = timeControl;
     }
 
     public String getEndTime() {
@@ -128,9 +128,9 @@ public class Game {
 
     public void setMoves(String moves) {this.moves = moves;}
 
-    public String getPlayerusername() {return playerusername;}
+    public String getPlayerUsername() {return playerUsername;}
 
-    public void setPlayerusername(String playerusername) {this.playerusername = playerusername;}
+    public void setPlayerUsername(String playerUsername) {this.playerUsername = playerUsername;}
 
     public String getDateandendtime() {return dateandendtime;}
 
@@ -166,12 +166,12 @@ public class Game {
 
     public void setEco(String eco) { this.eco = eco; }
 
-    public Integer getPlayerelo() {
-        return playerelo;
+    public Integer getPlayerElo() {
+        return playerElo;
     }
 
-    public void setPlayerelo(Integer playerelo) {
-        this.playerelo = playerelo;
+    public void setPlayerElo(Integer playerElo) {
+        this.playerElo = playerElo;
     }
 
     public String getCategory() {

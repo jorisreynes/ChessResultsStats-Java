@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -31,7 +30,7 @@ public class GamesService {
 
     public String getLastGameDateAndTime(String username) {
 
-        List<Game> games = gamesRepository.findByPlayerusername(username);
+        List<Game> games = gamesRepository.findByPlayerUsername(username);
 
         if (games.isEmpty()) {
             return "Aucune partie trouvée";
@@ -169,13 +168,13 @@ public class GamesService {
                                     currentGame.setResult(value);
                                     break;
                                 case "WhiteElo":
-                                    currentGame.setWhiteelo(Integer.parseInt(value));
+                                    currentGame.setWhiteElo(Integer.parseInt(value));
                                     break;
                                 case "BlackElo":
-                                    currentGame.setBlackelo(Integer.parseInt(value));
+                                    currentGame.setBlackElo(Integer.parseInt(value));
                                     break;
                                 case "TimeControl":
-                                    currentGame.setTimecontrol(value);
+                                    currentGame.setTimeControl(value);
                                     break;
                                 case "EndTime":
                                     currentGame.setEndTime(value);
@@ -206,19 +205,19 @@ public class GamesService {
                     if (currentGame != null) {
 
                         if(Objects.equals(currentGame.getWhite(), username)){
-                            currentGame.setPlayerelo(currentGame.getWhiteelo());
+                            currentGame.setPlayerElo(currentGame.getWhiteElo());
                         }
                         else {
-                            currentGame.setPlayerelo(currentGame.getBlackelo());
+                            currentGame.setPlayerElo(currentGame.getBlackElo());
                         }
 
-                        currentGame.setPlayerusername(username);
+                        currentGame.setPlayerUsername(username);
 
                         currentGame.setMoves(formatMoves(currentGame.getMoves()));
 
-                        currentGame.setCategory(setCategoryFromTimeControl(currentGame.getTimecontrol()));
+                        currentGame.setCategory(setCategoryFromTimeControl(currentGame.getTimeControl()));
 
-                        currentGame.setResultforplayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerusername()));
+                        currentGame.setResultforplayer(findResultForPlayer(currentGame.getTermination(), currentGame.getPlayerUsername()));
 
                         currentGame.setEndofgameby(howEndedTheGame(currentGame.getTermination()));
 
@@ -319,6 +318,6 @@ public class GamesService {
     }
 
     public List<Game> getGames(String username){
-        return gamesRepository.findByPlayerusername(username);
+        return gamesRepository.findByPlayerUsername(username);
     }
 }
