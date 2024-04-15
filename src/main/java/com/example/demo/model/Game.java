@@ -2,13 +2,18 @@ package com.example.demo.model;
 
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Document(collection = "games")
 public class Game {
 
     private String event;
     private String site;
-    private String date;
+    private LocalDate date;
     private String round;
     private String white;
     private String black;
@@ -18,7 +23,7 @@ public class Game {
     private Integer playerElo;
     private String timeControl;
     private String category;
-    private String endTime;
+    private LocalTime endTime;
     private String termination;
     private String moves;
     private String playerUsername;
@@ -27,9 +32,9 @@ public class Game {
     private double accuracy;
     private String opening;
     private String eco;
-
     @Indexed(unique = true)
-    private String dateAndEndTime;
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+    private LocalDateTime dateAndEndTime;
 
     public String getEvent() {
         return event;
@@ -47,11 +52,11 @@ public class Game {
         this.site = site;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
     public String getRound() {return round;}
@@ -106,11 +111,11 @@ public class Game {
         this.timeControl = timeControl;
     }
 
-    public String getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
@@ -132,9 +137,9 @@ public class Game {
 
     public void setPlayerUsername(String playerUsername) {this.playerUsername = playerUsername;}
 
-    public String getDateAndEndTime() {return dateAndEndTime;}
+    public LocalDateTime  getDateAndEndTime() {return dateAndEndTime;}
 
-    public void setDateAndEndTime(String dateAndEndTime) {
+    public void setDateAndEndTime(LocalDateTime  dateAndEndTime) {
         this.dateAndEndTime = dateAndEndTime;
     }
 

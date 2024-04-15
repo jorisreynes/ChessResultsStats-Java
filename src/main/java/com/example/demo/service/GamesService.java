@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -41,15 +43,14 @@ public class GamesService {
 
         // We look for the last Game
         Game lastGame = games.stream()
-                .max(Comparator.comparing(game -> LocalDateTime.parse(game.getDateAndEndTime(), formatter)))
-                .orElse(null);
+                .max(Comparator.comparing(Game::getDateAndEndTime)).orElse(null);
 
         if (lastGame == null) {
             return "Aucune partie trouvée";
         }
 
         // We look for the date of the last Game
-        LocalDateTime lastGameDateTime = LocalDateTime.parse(lastGame.getDateAndEndTime(), formatter);
+        LocalDateTime lastGameDateTime = lastGame.getDateAndEndTime();
         return lastGameDateTime.format(formatter);
     }
 
@@ -153,7 +154,9 @@ public class GamesService {
                                     currentGame.setSite(value);
                                     break;
                                 case "Date":
-                                    currentGame.setDate(value);
+                                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                                    LocalDate date = LocalDate.parse(value, dateFormatter);
+                                    currentGame.setDate(date);
                                     break;
                                 case "Round":
                                     currentGame.setRound(value);
@@ -177,7 +180,13 @@ public class GamesService {
                                     currentGame.setTimeControl(value);
                                     break;
                                 case "EndTime":
-                                    currentGame.setEndTime(value);
+                                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                                    LocalTime time = LocalTime.parse(value, timeFormatter);
+                                    currentGame.setEndTime(time);
+                                    if(currentGame.getDate() != null){
+                                        LocalDateTime dateTime = LocalDateTime.of(currentGame.getDate(), time);
+                                        currentGame.setDateAndEndTime(dateTime);
+                                    }
                                     break;
                                 case "Termination":
                                     currentGame.setTermination(value);
@@ -197,9 +206,6 @@ public class GamesService {
                                 currentGame.setMoves("");
                             }
                             currentGame.setMoves(currentGame.getMoves() + line + " ");
-                        }
-                        if (currentGame != null) {
-                            currentGame.setDateAndEndTime(currentGame.getDate() + " " + currentGame.getEndTime());
                         }
                     }
                     if (currentGame != null) {
