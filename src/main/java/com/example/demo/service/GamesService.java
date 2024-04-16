@@ -35,20 +35,17 @@ public class GamesService {
         List<Game> games = gamesRepository.findByPlayerUsername(username);
 
         if (games.isEmpty()) {
-            return null;
+            return LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         }
-
         // Date format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
-
         // We look for the last Game
         Game lastGame = games.stream()
                 .max(Comparator.comparing(Game::getDateAndEndTime)).orElse(null);
 
         if (lastGame == null) {
-            return null;
+            return LocalDateTime.of(1970, 1, 1, 0, 0, 0);
         }
-
         // We look for the date of the last Game
 		return lastGame.getDateAndEndTime();
     }
@@ -64,8 +61,6 @@ public class GamesService {
 
             // We transform the string yyyy.mm.dd hh:mm:ss into a date yyyy.mm
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
-
-            //LocalDateTime dateTime = LocalDateTime.parse(lastGameDateAndTime, formatter);
 
             YearMonth lastGameYearMonth = YearMonth.from(lastGameDateAndTime);
 
@@ -101,7 +96,7 @@ public class GamesService {
     }
 
     // Create a list of Game objects
-    public List<Game> createFormattedGamesList(List<String> dataList, String username) {
+    public List<Game> createFormattedGamesList(List<String> dataList, String username, LocalDateTime lastGameDateAndTime) {
 
         List<Game> gamesToReturn = new ArrayList<>();
 
@@ -133,7 +128,8 @@ public class GamesService {
 
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("[Event ")) {
-                            if (currentGame != null) {
+
+                            if (currentGame != null && currentGame.getDateAndEndTime().isAfter(lastGameDateAndTime)) {
                                 gamesToReturn.add(currentGame);
                             }
                             currentGame = new Game();
@@ -211,13 +207,13 @@ public class GamesService {
                     }
                     if (currentGame != null) {
 
+                        // Here we set some additional data based on first data
                         if(Objects.equals(currentGame.getWhite(), username)){
                             currentGame.setPlayerElo(currentGame.getWhiteElo());
                         }
                         else {
                             currentGame.setPlayerElo(currentGame.getBlackElo());
                         }
-
                         currentGame.setPlayerUsername(username);
 
                         currentGame.setMoves(formatMoves(currentGame.getMoves()));
@@ -228,7 +224,9 @@ public class GamesService {
 
                         currentGame.setEndOfGameBy(howEndedTheGame(currentGame.getTermination()));
 
-                        gamesToReturn.add(currentGame);
+                        if(currentGame.getDateAndEndTime().isAfter(lastGameDateAndTime)){
+                            gamesToReturn.add(currentGame);
+                        }
                     }
                 } catch (Exception e) {
                     logger.error("Error in createFormattedGamesList", e);
