@@ -5,6 +5,7 @@ import com.example.demo.service.GamesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @CrossOrigin(origins="*")
@@ -22,7 +23,7 @@ public class GamesController {
         // et mettre quelques teste unitaires simples sur le formatage des parties
 
         // 1. We check the date of the last game in the database
-        String lastGameDateAndTime = gamesService.getLastGameDateAndTime(username);
+        LocalDateTime lastGameDateAndTime = gamesService.getLastGameDateAndTime(username);
 
         // 2. We get the data from the chess.com API, each string in the list is a month of data returned by the API
         List<String> dataList = gamesService.getGamesFromChessCom(username, lastGameDateAndTime, 3);

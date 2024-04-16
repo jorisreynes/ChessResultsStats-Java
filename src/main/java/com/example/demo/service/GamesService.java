@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -28,12 +30,12 @@ public class GamesService {
 
     private static final Logger logger = LoggerFactory.getLogger(GamesService.class);
 
-    public String getLastGameDateAndTime(String username) {
+    public LocalDateTime getLastGameDateAndTime(String username) {
 
         List<Game> games = gamesRepository.findByPlayerUsername(username);
 
         if (games.isEmpty()) {
-            return "Aucune partie trouvée";
+            return null;
         }
 
         // Date format
@@ -41,31 +43,31 @@ public class GamesService {
 
         // We look for the last Game
         Game lastGame = games.stream()
-                .max(Comparator.comparing(game -> LocalDateTime.parse(game.getDateAndEndTime(), formatter)))
-                .orElse(null);
+                .max(Comparator.comparing(Game::getDateAndEndTime)).orElse(null);
 
         if (lastGame == null) {
-            return "Aucune partie trouvée";
+            return null;
         }
 
         // We look for the date of the last Game
-        LocalDateTime lastGameDateTime = LocalDateTime.parse(lastGame.getDateAndEndTime(), formatter);
-        return lastGameDateTime.format(formatter);
+		return lastGame.getDateAndEndTime();
     }
 
-    public List<String> getGamesFromChessCom(String username, String lastGameDateAndTime, int maximumNumberOfMonthsToFetch) {
+    public List<String> getGamesFromChessCom(String username, LocalDateTime lastGameDateAndTime, int maximumNumberOfMonthsToFetch) {
 
         List<String> dataList = new ArrayList<>();
 
         YearMonth now = YearMonth.now();
         int numberOfMonthsToFetch;
 
-        if (!lastGameDateAndTime.equals("Aucune partie trouvée")) {
+        if (lastGameDateAndTime != null) {
 
             // We transform the string yyyy.mm.dd hh:mm:ss into a date yyyy.mm
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
-            LocalDateTime dateTime = LocalDateTime.parse(lastGameDateAndTime, formatter);
-            YearMonth lastGameYearMonth = YearMonth.from(dateTime);
+
+            //LocalDateTime dateTime = LocalDateTime.parse(lastGameDateAndTime, formatter);
+
+            YearMonth lastGameYearMonth = YearMonth.from(lastGameDateAndTime);
 
             // We calculate the number of months between the lastGameDateAndTime and the current month
             numberOfMonthsToFetch = (int) lastGameYearMonth.until(now, ChronoUnit.MONTHS) + 1; // +1 to include lastGameDateAndTime
@@ -153,7 +155,9 @@ public class GamesService {
                                     currentGame.setSite(value);
                                     break;
                                 case "Date":
-                                    currentGame.setDate(value);
+                                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                                    LocalDate date = LocalDate.parse(value, dateFormatter);
+                                    currentGame.setDate(date);
                                     break;
                                 case "Round":
                                     currentGame.setRound(value);
@@ -177,7 +181,13 @@ public class GamesService {
                                     currentGame.setTimeControl(value);
                                     break;
                                 case "EndTime":
-                                    currentGame.setEndTime(value);
+                                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                                    LocalTime time = LocalTime.parse(value, timeFormatter);
+                                    currentGame.setEndTime(time);
+                                    if(currentGame.getDate() != null){
+                                        LocalDateTime dateTime = LocalDateTime.of(currentGame.getDate(), time);
+                                        currentGame.setDateAndEndTime(dateTime);
+                                    }
                                     break;
                                 case "Termination":
                                     currentGame.setTermination(value);
@@ -197,9 +207,6 @@ public class GamesService {
                                 currentGame.setMoves("");
                             }
                             currentGame.setMoves(currentGame.getMoves() + line + " ");
-                        }
-                        if (currentGame != null) {
-                            currentGame.setDateAndEndTime(currentGame.getDate() + " " + currentGame.getEndTime());
                         }
                     }
                     if (currentGame != null) {
